@@ -130,9 +130,17 @@ In `src/background.js` under `GRAPHIC_SETTINGS`:
   - `assets/audio/sfx` for question voice clips
   - `assets/audio/music` for looping tracks
 - Image rendering currently disables smoothing for sharper scaled pixel edges.
+- Local git repo is initialized and pushed to:
+  - `https://github.com/dustooned/why`
+- GitHub Pages was configured for `main` and `/ (root)`, but the public Pages URL was still returning `404` at last check:
+  - `https://dustooned.github.io/why/`
+- Current image sizing in `src/background.js` is driven by `GRAPHIC_SETTINGS.sizeRatio`, and the current value is aggressive enough that mobile/responsive behavior should be reviewed before more art tuning.
 
 ## Good Next Feature Directions
 
+- Review mobile layout and auto-resize behavior:
+  - make image scale and dialog layout behave predictably on smaller screens
+  - check whether `sizeRatio`, text sizing, and dialog width need viewport-aware rules
 - Add a visible phase indicator or mood indicator.
 - Add punctuation-aware typewriter sound rules.
 - Add per-question or per-mood image scale/opacity overrides.
