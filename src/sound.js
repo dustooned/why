@@ -3,10 +3,12 @@
   const questionAssetsById = window.WhyManifest.questionAssetsById;
   let audioContext;
   const characterVoiceSources = {};
+  const activeCharacterBlips = new Set();
   const musicSources = {};
   let activeMusic;
   let activeMusicPath = "";
   let musicFadeFrame = 0;
+  let activeToneNodes;
 
   const AUDIO_SETTINGS = {
     sfx: {
@@ -14,7 +16,8 @@
       characterInterval: 2,
       characterVolume: 0.010,
       characterPlaybackRate: 1,
-      toneVolumeScale: 0.75
+      toneVolumeScale: 0.75,
+      questionToneOverlap: false
     },
     music: {
       path: "assets/audio/music/ambient.wav",
@@ -53,9 +56,22 @@
     gain.gain.exponentialRampToValueAtTime(tonePeak, now + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + preset.duration);
 
+    if (!AUDIO_SETTINGS.sfx.questionToneOverlap && activeToneNodes) {
+      try {
+        activeToneNodes.oscillator.stop();
+      } catch (error) {}
+      activeToneNodes = null;
+    }
+
     oscillator.connect(gain).connect(context.destination);
     oscillator.start(now);
     oscillator.stop(now + preset.duration + 0.02);
+    activeToneNodes = { oscillator, gain };
+    oscillator.addEventListener("ended", () => {
+      if (activeToneNodes && activeToneNodes.oscillator === oscillator) {
+        activeToneNodes = null;
+      }
+    });
   }
 
   const DEFAULT_VOICE_PATH = `${AUDIO_SETTINGS.sfx.path}/room-shift.wav`;
@@ -82,7 +98,22 @@
     const blip = source.cloneNode();
     blip.volume = AUDIO_SETTINGS.sfx.characterVolume;
     blip.playbackRate = AUDIO_SETTINGS.sfx.characterPlaybackRate;
+    activeCharacterBlips.add(blip);
+    blip.addEventListener("ended", () => {
+      activeCharacterBlips.delete(blip);
+    });
+    blip.addEventListener("pause", () => {
+      activeCharacterBlips.delete(blip);
+    });
     blip.play().catch(() => {});
+  }
+
+  function stopCharacterBlips() {
+    activeCharacterBlips.forEach((blip) => {
+      blip.pause();
+      blip.currentTime = 0;
+    });
+    activeCharacterBlips.clear();
   }
 
   function shouldPlayCharacterBlip(visibleCharacterCount) {
@@ -219,6 +250,7 @@
     AUDIO_SETTINGS,
     playQuestionTone,
     playCharacterBlip,
+    stopCharacterBlips,
     shouldPlayCharacterBlip,
     startAmbientMusic,
     stopAmbientMusic,

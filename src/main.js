@@ -3,6 +3,8 @@
   const canvas = document.querySelector("#field");
   const dialogText = document.querySelector("#dialogText");
   const nextButton = document.querySelector("#nextButton");
+  let lastQuestionAt = 0;
+  const QUESTION_COOLDOWN_MS = 260;
 
   if (!canvas || !dialogText || !nextButton) {
     throw new Error("Why failed to initialize because the required DOM elements were not found.");
@@ -13,6 +15,7 @@
 
   function askQuestion(withSound = true) {
     const question = questionFlow.nextQuestion();
+    window.WhySound.stopCharacterBlips();
     window.WhyTypewriter.crawlText(dialogText, question.text, {
       speed: question.crawlSpeed,
       voice: question.id
@@ -28,6 +31,13 @@
   askQuestion(false);
 
   nextButton.addEventListener("click", () => {
+    const now = performance.now();
+
+    if (now - lastQuestionAt < QUESTION_COOLDOWN_MS) {
+      return;
+    }
+
+    lastQuestionAt = now;
     askQuestion(true);
   });
 })();
