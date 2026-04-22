@@ -118,7 +118,7 @@ body {
 
   .stage {
     place-items: end stretch;
-    padding-bottom: max(clamp(22px, 6dvh, 48px), env(safe-area-inset-bottom));
+    padding-bottom: max(clamp(40px, 10dvh, 88px), env(safe-area-inset-bottom));
   }
 
   .dialog {
@@ -143,7 +143,7 @@ body {
 
 @media (max-width: 380px), (max-height: 700px) {
   .stage {
-    padding-bottom: max(clamp(18px, 4dvh, 32px), env(safe-area-inset-bottom));
+    padding-bottom: max(clamp(32px, 8dvh, 64px), env(safe-area-inset-bottom));
   }
 
   .dialog {
