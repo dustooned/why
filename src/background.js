@@ -14,10 +14,14 @@
 
   const GRAPHIC_SETTINGS = {
     sizeRatio: 2,
+    mobileSizeRatio: 1.18,
+    mobileBreakpoint: 720,
+    narrowAspectThreshold: 0.82,
     baseOpacity: 0.34,
     fadeEasing: 0.08,
     xRatio: 0.5,
     yRatio: 0.42,
+    mobileYRatio: 0.29,
     xOffset: 0,
     yOffset: 0,
     floatXAmplitude: 12,
@@ -155,9 +159,21 @@
         return;
       }
 
+      const shortestSide = Math.min(width, height);
+      const aspectRatio = width / Math.max(height, 1);
+      const isCompactViewport =
+        width <= GRAPHIC_SETTINGS.mobileBreakpoint ||
+        height <= GRAPHIC_SETTINGS.mobileBreakpoint ||
+        aspectRatio <= GRAPHIC_SETTINGS.narrowAspectThreshold;
+      const sizeRatio = isCompactViewport
+        ? GRAPHIC_SETTINGS.mobileSizeRatio
+        : GRAPHIC_SETTINGS.sizeRatio;
+      const yRatio = isCompactViewport
+        ? GRAPHIC_SETTINGS.mobileYRatio
+        : GRAPHIC_SETTINGS.yRatio;
       const baseX = width * GRAPHIC_SETTINGS.xRatio + GRAPHIC_SETTINGS.xOffset;
-      const baseY = height * GRAPHIC_SETTINGS.yRatio + GRAPHIC_SETTINGS.yOffset;
-      const graphicSize = Math.min(width, height) * GRAPHIC_SETTINGS.sizeRatio;
+      const baseY = height * yRatio + GRAPHIC_SETTINGS.yOffset;
+      const graphicSize = shortestSide * sizeRatio;
       const driftX = Math.sin(time * GRAPHIC_SETTINGS.floatXSpeed) * GRAPHIC_SETTINGS.floatXAmplitude;
       const driftY = Math.cos(time * GRAPHIC_SETTINGS.floatYSpeed) * GRAPHIC_SETTINGS.floatYAmplitude;
       const rotationRadians = Math.sin(time * GRAPHIC_SETTINGS.rotationSpeed) * (GRAPHIC_SETTINGS.rotationDegrees * Math.PI / 180);

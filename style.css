@@ -6,6 +6,8 @@
   --line: rgba(247, 244, 237, 0.24);
   --button: #e34f35;
   --button-ink: #171310;
+  --stage-padding: clamp(14px, 3vw, 28px);
+  --dialog-width: min(680px, 100%);
 }
 
 * {
@@ -30,25 +32,30 @@ body {
   position: fixed;
   inset: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .stage {
   position: relative;
   z-index: 1;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: end center;
-  padding: 24px;
+  padding:
+    max(var(--stage-padding), env(safe-area-inset-top))
+    max(var(--stage-padding), env(safe-area-inset-right))
+    max(var(--stage-padding), env(safe-area-inset-bottom))
+    max(var(--stage-padding), env(safe-area-inset-left));
 }
 
 .dialog {
-  width: min(680px, 100%);
-  min-height: 220px;
+  width: var(--dialog-width);
+  min-height: min(220px, 42dvh);
   display: grid;
   align-content: start;
   gap: 18px;
-  padding: 22px;
+  padding: clamp(18px, 3.5vw, 22px);
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
@@ -66,8 +73,8 @@ body {
 .dialog-text {
   min-height: 4.8em;
   margin: 0;
-  font-size: clamp(1.35rem, 1.35rem + 0.6rem, 2rem);
-  line-height: 1.2;
+  font-size: clamp(1.1rem, 0.95rem + 1.5vw, 2rem);
+  line-height: 1.22;
 }
 
 .dialog-text::after {
@@ -105,12 +112,41 @@ body {
 }
 
 @media (max-width: 520px) {
+  :root {
+    --dialog-width: min(100%, 32rem);
+  }
+
   .stage {
-    padding: 14px;
+    place-items: end stretch;
   }
 
   .dialog {
-    min-height: 230px;
-    padding: 18px;
+    min-height: min(240px, 46dvh);
+    gap: 16px;
+  }
+
+  .eyebrow {
+    font-size: 0.76rem;
+  }
+
+  .dialog-text {
+    min-height: 5.6em;
+    font-size: clamp(1rem, 0.9rem + 1.9vw, 1.35rem);
+  }
+
+  .next-button {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 380px), (max-height: 700px) {
+  .dialog {
+    min-height: min(212px, 48dvh);
+    gap: 14px;
+  }
+
+  .dialog-text {
+    min-height: 5.2em;
   }
 }
