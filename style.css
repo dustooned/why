@@ -35,6 +35,80 @@ body {
   height: 100dvh;
 }
 
+.entry-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding:
+    max(24px, env(safe-area-inset-top))
+    max(24px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom))
+    max(24px, env(safe-area-inset-left));
+  background:
+    radial-gradient(circle at top, rgba(255, 238, 203, 0.18), transparent 42%),
+    linear-gradient(180deg, rgba(14, 11, 10, 0.9), rgba(8, 8, 8, 0.96));
+  transition: opacity 260ms ease, visibility 260ms ease;
+}
+
+.entry-gate.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.entry-panel {
+  width: min(520px, 100%);
+  display: grid;
+  gap: 18px;
+  padding: clamp(22px, 5vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(20, 15, 13, 0.84);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(18px);
+}
+
+.entry-label,
+.entry-title,
+.entry-copy {
+  margin: 0;
+}
+
+.entry-label {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.entry-title {
+  font-size: clamp(1.6rem, 1.2rem + 2vw, 2.5rem);
+  line-height: 1.05;
+}
+
+.entry-copy {
+  max-width: 34ch;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.entry-button {
+  justify-self: start;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--button-ink);
+  background: var(--button);
+  font: inherit;
+  cursor: pointer;
+}
+
+.entry-button:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
 .stage {
   position: relative;
   z-index: 1;
@@ -138,6 +212,11 @@ body {
   }
 
   .next-button {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .entry-button {
     width: 100%;
     justify-self: stretch;
   }

@@ -24,7 +24,7 @@
       volume: 0.05,
       playbackRate: 1,
       loop: true,
-      fadeDurationMs: 500
+      fadeDurationMs: 220
     }
   };
 
@@ -38,6 +38,16 @@
   function getAudioContext() {
     audioContext = audioContext || new AudioContext();
     return audioContext;
+  }
+
+  async function unlockAudio() {
+    const context = getAudioContext();
+
+    if (context.state === "suspended") {
+      await context.resume();
+    }
+
+    return context;
   }
 
   function playQuestionTone(soundName = "hollow") {
@@ -155,25 +165,11 @@
     music.volume = 0;
   }
 
-  function getLoudestPlayingMusic(excludedMusic) {
-    const playingMusic = Object.values(musicSources).filter((music) => {
-      return music !== excludedMusic && !music.paused;
-    });
-
-    if (playingMusic.length === 0) {
-      return null;
-    }
-
-    return playingMusic.reduce((loudest, music) => {
-      return music.volume > loudest.volume ? music : loudest;
-    });
+  function stopAllMusic() {
+    Object.values(musicSources).forEach(resetMusicSource);
   }
 
-  function crossfadeMusic(nextMusic) {
-    const previousMusic =
-      activeMusic && activeMusic !== nextMusic && !activeMusic.paused
-        ? activeMusic
-        : getLoudestPlayingMusic(nextMusic);
+  function fadeInMusic(nextMusic) {
     const fadeDuration = Math.max(0, AUDIO_SETTINGS.music.fadeDurationMs);
     const fadeStart = performance.now();
     const targetVolume = AUDIO_SETTINGS.music.volume;
@@ -183,22 +179,12 @@
       musicFadeFrame = 0;
     }
 
-    Object.values(musicSources).forEach((music) => {
-      if (music !== previousMusic && music !== nextMusic) {
-        resetMusicSource(music);
-      }
-    });
-
     nextMusic.currentTime = 0;
     nextMusic.volume = fadeDuration > 0 ? 0 : targetVolume;
     nextMusic.play().catch(() => {});
     activeMusic = nextMusic;
 
-    if (!previousMusic || previousMusic === nextMusic || fadeDuration === 0) {
-      if (previousMusic && previousMusic !== nextMusic) {
-        resetMusicSource(previousMusic);
-      }
-
+    if (fadeDuration === 0) {
       nextMusic.volume = targetVolume;
       return;
     }
@@ -206,14 +192,12 @@
     function step(now) {
       const progress = Math.min((now - fadeStart) / fadeDuration, 1);
       nextMusic.volume = targetVolume * progress;
-      previousMusic.volume = targetVolume * (1 - progress);
 
       if (progress < 1) {
         musicFadeFrame = window.requestAnimationFrame(step);
         return;
       }
 
-      resetMusicSource(previousMusic);
       nextMusic.volume = targetVolume;
       musicFadeFrame = 0;
     }
@@ -230,7 +214,8 @@
     }
 
     activeMusicPath = musicPath;
-    crossfadeMusic(music);
+    stopAllMusic();
+    fadeInMusic(music);
   }
 
   function stopAmbientMusic() {
@@ -243,11 +228,12 @@
       return;
     }
 
-    Object.values(musicSources).forEach(resetMusicSource);
+    stopAllMusic();
   }
 
   window.WhySound = {
     AUDIO_SETTINGS,
+    unlockAudio,
     playQuestionTone,
     playCharacterBlip,
     stopCharacterBlips,
