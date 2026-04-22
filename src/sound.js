@@ -114,8 +114,35 @@
     return musicSources[path];
   }
 
+  function resetMusicSource(music) {
+    if (!music) {
+      return;
+    }
+
+    music.pause();
+    music.currentTime = 0;
+    music.volume = 0;
+  }
+
+  function getLoudestPlayingMusic(excludedMusic) {
+    const playingMusic = Object.values(musicSources).filter((music) => {
+      return music !== excludedMusic && !music.paused;
+    });
+
+    if (playingMusic.length === 0) {
+      return null;
+    }
+
+    return playingMusic.reduce((loudest, music) => {
+      return music.volume > loudest.volume ? music : loudest;
+    });
+  }
+
   function crossfadeMusic(nextMusic) {
-    const previousMusic = activeMusic;
+    const previousMusic =
+      activeMusic && activeMusic !== nextMusic && !activeMusic.paused
+        ? activeMusic
+        : getLoudestPlayingMusic(nextMusic);
     const fadeDuration = Math.max(0, AUDIO_SETTINGS.music.fadeDurationMs);
     const fadeStart = performance.now();
     const targetVolume = AUDIO_SETTINGS.music.volume;
@@ -125,19 +152,23 @@
       musicFadeFrame = 0;
     }
 
+    Object.values(musicSources).forEach((music) => {
+      if (music !== previousMusic && music !== nextMusic) {
+        resetMusicSource(music);
+      }
+    });
+
     nextMusic.currentTime = 0;
     nextMusic.volume = fadeDuration > 0 ? 0 : targetVolume;
     nextMusic.play().catch(() => {});
+    activeMusic = nextMusic;
 
     if (!previousMusic || previousMusic === nextMusic || fadeDuration === 0) {
       if (previousMusic && previousMusic !== nextMusic) {
-        previousMusic.pause();
-        previousMusic.currentTime = 0;
-        previousMusic.volume = 0;
+        resetMusicSource(previousMusic);
       }
 
       nextMusic.volume = targetVolume;
-      activeMusic = nextMusic;
       return;
     }
 
@@ -151,11 +182,8 @@
         return;
       }
 
-      previousMusic.pause();
-      previousMusic.currentTime = 0;
-      previousMusic.volume = 0;
+      resetMusicSource(previousMusic);
       nextMusic.volume = targetVolume;
-      activeMusic = nextMusic;
       musicFadeFrame = 0;
     }
 
@@ -184,9 +212,7 @@
       return;
     }
 
-    activeMusic.pause();
-    activeMusic.currentTime = 0;
-    activeMusic.volume = 0;
+    Object.values(musicSources).forEach(resetMusicSource);
   }
 
   window.WhySound = {

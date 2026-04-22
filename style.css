@@ -52,6 +52,7 @@ body {
 .dialog {
   width: var(--dialog-width);
   min-height: min(220px, 42dvh);
+  max-height: calc(100dvh - (var(--stage-padding) * 2));
   display: grid;
   align-content: start;
   gap: 18px;
@@ -122,7 +123,8 @@ body {
   }
 
   .dialog {
-    min-height: min(188px, 34dvh);
+    min-height: 0;
+    max-height: min(52dvh, 420px);
     gap: 16px;
   }
 
@@ -147,7 +149,7 @@ body {
   }
 
   .dialog {
-    min-height: min(172px, 30dvh);
+    max-height: min(46dvh, 320px);
     gap: 14px;
   }
 
