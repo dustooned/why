@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Why</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <canvas id="field" aria-hidden="true"></canvas>
+
+    <main class="stage">
+      <section class="dialog" aria-live="polite">
+        <p class="eyebrow">WHY</p>
+        <p id="dialogText" class="dialog-text"></p>
+        <button id="nextButton" class="next-button" type="button">
+          Ask again
+        </button>
+      </section>
+    </main>
+
+    <script src="src/manifest.js"></script>
+    <script src="src/questions.js"></script>
+    <script src="src/typewriter.js"></script>
+    <script src="src/sound.js"></script>
+    <script src="src/background.js"></script>
+    <script src="src/main.js"></script>
+  </body>
+</html>
